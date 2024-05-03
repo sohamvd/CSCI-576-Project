@@ -56,7 +56,7 @@ def search(queryVideoPath, queryAudioPath):
     print(allOutputs[:1])
     return allOutputs[0]
 
-allOutputs = search('./queryVid/video9_1_modified.mp4', './queryAud/video9_1_modified.wav')
+allOutputs = search('./queryVid/video5_1_modified.mp4', './queryAud/video5_1_modified.wav')
 path = allOutputs['video']
 start_index = path.rfind('/') + 1
 end_index = path.rfind('.')
