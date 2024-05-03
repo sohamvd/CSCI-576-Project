@@ -1,14 +1,10 @@
 import vlc
 
 # Path to the audio file
-audio_path = "path_to_audio_file.wav"
+audio_path = "./audiofiles/video9.wav"
 
 # Create a VLC media player instance
-player = vlc.MediaPlayer()
-
-# Load the audio file
-media = vlc.Media(audio_path)
-player.set_media(media)
+player = vlc.MediaPlayer('./audiofiles/video9.wav')
 
 # Play the audio
 player.play()
