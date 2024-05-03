@@ -1,9 +1,12 @@
-import cv2
 import numpy as np
 import json
-from scipy.spatial.distance import cosine
 import sound_processing as sp
-import time
+import subprocess
+
+def play_video_from_timestamp(timestamp, video_path):
+    timestamp_formatted = f"--start-time={timestamp}"
+    command = ['vlc', '--play-and-stop', timestamp_formatted, video_path]
+    subprocess.run(command)
 
 def load_video_features_from_json(input_file):
     with open(input_file, 'r') as json_file:
@@ -29,7 +32,6 @@ def audio_match(query_features_path, original_features_path):
     output = []
 
     for start in range(original_len - window_len):
-        # cosineVal = cosine(query_mfcc_window, original_mfcc[start:start+window_len].flatten())
         cosineVal = np.dot(query_mfcc_window, original_mfcc[start:start+window_len].flatten()) / (np.linalg.norm(query_mfcc_window)*np.linalg.norm(original_mfcc[start:start+window_len].flatten()))
         result = cosineVal
         frameTime = start / query_features_path['fps']
@@ -52,12 +54,17 @@ def search(queryVideoPath, queryAudioPath):
     
     allOutputs.sort(reverse=True, key=lambda i: i['result'])
     print(allOutputs[:1])
-# start = time.time()
-# # search('./queryVid/video9.mp4', './queryAud/video9.wav')
-# end = time.time()
-# print(end-start)
+    return allOutputs[0]
 
-vidpath = './queryVid/video'
-audpath = './queryAud/video'
-for i in range(1, 11):
-    search(vidpath+str(i)+'_1_modified.mp4', audpath+str(i)+'_1_modified.wav')
+allOutputs = search('./queryVid/video9_1_modified.mp4', './queryAud/video9_1_modified.wav')
+path = allOutputs['video']
+start_index = path.rfind('/') + 1
+end_index = path.rfind('.')
+video_name = path[start_index:end_index]
+print(video_name)
+play_video_from_timestamp(allOutputs['frame_time'], './videofiles/'+video_name+'.mp4')
+
+# vidpath = './queryVid/video'
+# audpath = './queryAud/video'
+# for i in range(1, 11):
+#     search(vidpath+str(i)+'_1_modified.mp4', audpath+str(i)+'_1_modified.wav')
