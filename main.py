@@ -2,6 +2,9 @@ import numpy as np
 import json
 import sound_processing as sp
 import subprocess
+import sys
+import os
+import time
 
 def play_video_from_timestamp(timestamp, video_path):
     timestamp_formatted = f"--start-time={timestamp}"
@@ -50,21 +53,37 @@ def search(queryVideoPath, queryAudioPath):
     allOutputs = []
     featurePath = './featurefiles/video'
     for i in range(1, 21):
-        allOutputs+=(audio_match(queryAudioFeatures, (featurePath+str(i)+'.json')))
+        allOutputs+=(audio_match(queryAudioFeatures, (featurePath+str(i)+'.json'))[:10])
     
     allOutputs.sort(reverse=True, key=lambda i: i['result'])
     print(allOutputs[:1])
     return allOutputs[0]
 
-allOutputs = search('./queryVid/video5_1_modified.mp4', './queryAud/video5_1_modified.wav')
-path = allOutputs['video']
-start_index = path.rfind('/') + 1
-end_index = path.rfind('.')
-video_name = path[start_index:end_index]
-print(video_name)
-play_video_from_timestamp(allOutputs['frame_time'], './videofiles/'+video_name+'.mp4')
 
-# vidpath = './queryVid/video'
-# audpath = './queryAud/video'
-# for i in range(1, 11):
-#     search(vidpath+str(i)+'_1_modified.mp4', audpath+str(i)+'_1_modified.wav')
+
+def sound_process(video_file_path, audio_file_path):
+    start_time = time.time()
+    allOutputs = search(video_file_path, audio_file_path)
+    #allOutputs = search('./queryVid/video5_1_modified.mp4', './queryAud/video5_1_modified.wav')
+    path = allOutputs['video']
+    start_index = path.rfind('/') + 1
+    end_index = path.rfind('.')
+    video_name = path[start_index:end_index]
+    print(video_name)
+    end_time = time.time()
+    print("Execution time is " + str(end_time-start_time))
+    play_video_from_timestamp(allOutputs['frame_time'], './videofiles/'+video_name+'.mp4')
+
+
+
+def get_input():
+    input_len = len(sys.argv)
+    if input_len < 3:
+        print("Input files are needed, first must be the path to the .mp4 file and second must be the path to the .wav file")
+    else:
+        sound_process(sys.argv[1], sys.argv[2])
+        #video_process(sys.argv[1])
+
+
+if __name__ == "__main__":
+    get_input()
